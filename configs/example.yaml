@@ -1,0 +1,5 @@
+dataset: personachat
+subset_size: 1000
+window_size: 4
+top_k: 5
+seed: 42

@@ -1,34 +1,49 @@
 # Syn-SECOM: Synesthetic Tagging for Segmented Memory
 
-This repo is a **minimal, runnable skeleton** to test whether adding synesthetic metadata
-(Emotion → Color → Tone) to SeCOM-style segments improves retrieval and response quality.
+Syn-SECOM is a lightweight research prototype that tests whether adding synesthetic metadata
+(Emotion → Color → Tone) to SeCOM-style memory segments improves retrieval quality for dialogue
+systems. The pipeline loads open datasets, segments conversations into fixed windows, tags each
+segment, embeds the baseline and tagged variants, then evaluates retrieval performance.
+
+## Project goals
+- Demonstrate a clear, reproducible experiment for synesthetic tagging.
+- Provide a minimal baseline you can extend with improved taggers, embeddings, or evaluation.
+
+## Quickstart (local)
+```bash
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python run.py --dataset personachat --subset_size 1000 --window_size 4 --top_k 5
+```
 
 ## Quickstart (Google Colab)
-1) **Upload** this zip to Colab (left sidebar → Files → Upload).
-2) Unzip and install deps:
 ```bash
 !unzip syn-secom.zip -d syn-secom
 %cd syn-secom
 !pip -q install -r requirements.txt
-```
-3) Run a pilot on **PersonaChat** (fast, no auth):
-```bash
 !python run.py --dataset personachat --subset_size 1000 --window_size 4 --top_k 5
 ```
-4) Optional: Try **Topical-Chat** (pulls JSON from GitHub):
-```bash
-!python run.py --dataset topical_chat --subset_size 1000 --window_size 4 --top_k 5
-```
 
-## What’s inside
-- `src/data/loaders.py` — loads PersonaChat (HF) or pulls Topical-Chat JSON from GitHub.
-- `src/data/segmenter.py` — SeCOM-style fixed-window segmentation (2–8 turns).
-- `src/tagging/` — emotion classifier + color map + optional tone heuristics.
-- `src/embed/` — baseline vs syn-SECOM embeddings, FAISS index builders.
-- `src/retrieval/` — query generator + eval (P@1, Recall@K, MRR, Synesthetic Compression Gain).
+## Example output
+The run writes artifacts to `outputs/`:
+- `segments.jsonl` — each segment with tags
+- `queries.jsonl` — sampled queries and gold segment IDs
+- `report.json` — baseline vs synesthetic retrieval metrics
+
+## Repository structure
+- `src/data/loaders.py` — loads PersonaChat (Hugging Face) or Topical-Chat (GitHub JSON).
+- `src/data/segmenter.py` — fixed-window segmentation.
+- `src/tagging/` — rule-based emotion tagging and synesthetic mapping.
+- `src/embed/` — embedding + FAISS index helpers.
+- `src/retrieval/` — query generation and evaluation (P@1, Recall@K, MRR, gain).
 - `run.py` — end-to-end pipeline entry point.
-- `configs/` — example config YAMLs you can tweak.
 
 ## Notes
-- This skeleton favors **clarity > cleverness**. It’s easy to swap models/components.
-- For paper-grade runs, increase `subset_size`, run multiple datasets, and add stats (bootstrap CIs).
+- The default tagger is intentionally simple; swap in a transformer-based classifier for higher fidelity.
+- For paper-grade runs, increase `subset_size` and run multiple seeds or datasets.
+
+## Tests
+```bash
+pytest
+```
